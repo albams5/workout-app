@@ -5,7 +5,7 @@ const exerciseRoutes: Router = Router()
 
 exerciseRoutes.get("/", getAllExercises)
 exerciseRoutes.post("/", createExercise)
-exerciseRoutes.patch("/:userId", updateExercise)
-exerciseRoutes.delete("/:userId", deleteExercise)
+exerciseRoutes.patch("/:exercise", updateExercise)
+exerciseRoutes.delete("/:exercise", deleteExercise)
 
 export default exerciseRoutes;
