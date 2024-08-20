@@ -5,7 +5,7 @@ const categoryRoutes: Router = Router()
 
 categoryRoutes.get("/", getAllCategories)
 categoryRoutes.post("/", createCategory)
-categoryRoutes.patch("/:userId", updateCategory)
-categoryRoutes.delete("/:userId", deleteCategory)
+categoryRoutes.patch("/:categoryName", updateCategory)
+categoryRoutes.delete("/:categoryName", deleteCategory)
 
 export default categoryRoutes;
