@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique @db.VarChar(100)
+  password String   @db.VarChar(255)
+  name      String?   @db.VarChar(255)
+  weight    Int?
+  height    Float?
+  workouts  Workout[]
+  reports   Report[]
+  createdAt DateTime  @default(now())
+}
+
+model Exercise {
+  name        String               @id @unique @db.VarChar(255)
+  description String               @db.VarChar(1000)
+  category    CategoryOnExercise[]
+  createdAt   DateTime             @default(now())
+  sets        Int
+  repetitions Int
+  weight      Float
+  workouts    ExerciseOnWorkout[]
+}
+
+model Category {
+  name      String               @id @unique @db.VarChar(255)
+  exercise  CategoryOnExercise[]
+  createdAt DateTime             @default(now())
+}
+
+model CategoryOnExercise {
+  exercise     Exercise @relation(fields: [exerciseName], references: [name])
+  exerciseName String
+  category     Category @relation(fields: [categoryName], references: [name])
+  categoryName String
+
+  @@id([exerciseName, categoryName])
+}
+
+model Workout {
+  name        String              @id @unique @db.VarChar(255)
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  exercises   ExerciseOnWorkout[]
+  scheduledAt DateTime?
+  createdAt   DateTime            @default(now())
+  comments    String?             @db.VarChar(500)
+  status      WorkoutStatus       @default(PENDING)
+  reports     Report[]
+}
+
+model ExerciseOnWorkout {
+  workout      Workout  @relation(fields: [workoutName], references: [name])
+  workoutName  String
+  exercise     Exercise @relation(fields: [exerciseName], references: [name])
+  exerciseName String
+
+  @@id([workoutName, exerciseName])
+}
+
+enum WorkoutStatus {
+  PENDING
+  COMPLETED
+  CANCELED
+}
+
+model Report {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  workout     Workout  @relation(fields: [workoutName], references: [name], onDelete: Cascade)
+  workoutName String
+  generatedAt DateTime @default(now())
+  content     String   @db.Text
+}
+
+//User-Workout: relacion de uno a muchos. Un user puede tener varios workouts. Un workout solo puede ser generado por un user.
+//Workout-exercise: relacion muchos a muchos. Un ejercicio puede aparecer en muchos workouts. Un workout puede contener muchos ejercicios.
+//Exercise-Category: muchos a muchos. Un ejercicio puede pertenecer a varias categorias. Una categoria puede contener varios ejercicios.
+//Workout-Report: uno a muchos. Un reporte solo habla de un workout. Un workout puede tener varios reportes.
+//Report-User: uno a muchos. un usuario puede tener varios reports, un report es creado por un solo usuario.
