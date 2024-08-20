@@ -3,7 +3,11 @@ import prisma from "../db/client";
 
 export const getAllCategories = async(req: Request, res: Response) => {
     try{
-        const allCategories = await prisma.category.findMany({})
+        const allCategories = await prisma.category.findMany({
+            include:{
+                exercise: true
+            }
+        })
         res.status(200).send({
             msg: "All categories",
             data: allCategories
