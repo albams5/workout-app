@@ -68,8 +68,9 @@ model ExerciseOnWorkout {
   workoutName  String
   exercise     Exercise @relation(fields: [exerciseName], references: [name])
   exerciseName String
+  sequence Int
 
-  @@id([workoutName, exerciseName])
+  @@id([workoutName, exerciseName, sequence])
 }
 
 enum WorkoutStatus {
