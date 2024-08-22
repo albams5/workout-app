@@ -5,7 +5,8 @@ export const getAllWorkouts = async(req: Request, res: Response) => {
     try{
         const allWorkouts = await prisma.workout.findMany({
             include: {
-                exercises: true
+                exercises: true,
+                reports: true
             }
         })
         res.status(201).send({
