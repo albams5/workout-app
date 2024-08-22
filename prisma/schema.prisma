@@ -16,7 +16,7 @@ datasource db {
 model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique @db.VarChar(100)
-  password String   @db.VarChar(255)
+  password  String    @db.VarChar(255)
   name      String?   @db.VarChar(255)
   weight    Int?
   height    Float?
@@ -68,7 +68,7 @@ model ExerciseOnWorkout {
   workoutName  String
   exercise     Exercise @relation(fields: [exerciseName], references: [name])
   exerciseName String
-  sequence Int
+  sequence     Int
 
   @@id([workoutName, exerciseName, sequence])
 }
@@ -81,6 +81,7 @@ enum WorkoutStatus {
 
 model Report {
   id          Int      @id @default(autoincrement())
+  name        String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   workout     Workout  @relation(fields: [workoutName], references: [name], onDelete: Cascade)
