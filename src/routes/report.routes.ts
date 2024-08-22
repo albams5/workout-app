@@ -4,8 +4,8 @@ import {createReport, deleteReport, getAllReports, updateReport} from "../contro
 const reportRoutes: Router = Router()
 
 reportRoutes.get("/", getAllReports)
-reportRoutes.post("/", createReport)
-reportRoutes.patch("/:userId", updateReport)
-reportRoutes.delete("/:userId", deleteReport)
+reportRoutes.post("/:userId", createReport)
+reportRoutes.patch("/:reportId", updateReport)
+reportRoutes.delete("/:reportId", deleteReport)
 
 export default reportRoutes;
