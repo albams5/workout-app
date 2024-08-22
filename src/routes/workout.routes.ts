@@ -4,8 +4,8 @@ import {createWorkout, deleteWorkout, getAllWorkouts, updateWorkout} from "../co
 const workoutRoutes: Router = Router()
 
 workoutRoutes.get("/", getAllWorkouts)
-workoutRoutes.post("/", createWorkout)
-workoutRoutes.patch("/:userId", updateWorkout)
-workoutRoutes.delete("/:userId", deleteWorkout)
+workoutRoutes.post("/:userId", createWorkout)
+workoutRoutes.patch("/:workoutName", updateWorkout)
+workoutRoutes.delete("/:workoutName", deleteWorkout)
 
 export default workoutRoutes;
