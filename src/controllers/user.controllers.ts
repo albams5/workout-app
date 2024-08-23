@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../db/client";
+import bcrypt from 'bcrypt'
 
 export const getAllUsers = async(req: Request, res: Response) => {
     try{
@@ -32,12 +33,12 @@ export const createUser = async(req: Request, res:Response) => {
     }
 
     try{
-        //usar bcrypt para hashear la contraseña
+        const hashedPassword = await bcrypt.hash(password, 10)
         const newUser = await prisma.user.create({
-            data: {name, email, password, height, weight}
+            data: {name, email, password: hashedPassword, height, weight}
         })
         res.status(201).send({
-            msg: "User created successfully"
+            msg: "User created successfully",
         })
     } catch (error){
         res.status(400).send(error)
@@ -77,43 +78,49 @@ export const deleteUser = async(req: Request, res:Response) => {
     }
 
     try{
-        // const user = await prisma.user.findUnique({
-        //     where: {
-        //         id: userId
-        //     },
-        //     include: {
-        //         workouts: {
-        //             include:{
-        //                 exercises:true
-        //             }
-        //         },
-        //         reports: true
-        //     }
-        // })
-        // if (!user){
-        //     return res.status(404).send({
-        //         message: "User not found"
-        //     })
-        // }
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId
+            },
+            include: {
+                workouts: {
+                    include:{
+                        exercises:true
+                    }
+                },
+                reports: true
+            }
+        })
+        if (!user){
+            return res.status(404).send({
+                message: "User not found"
+            })
+        }
 
-        // const exercisesOnWorkoutToDelete = user.workouts.flatMap((workout)=>
-        //     workout.exercises.map((exercise) => ({
-        //         workoutName: workout.name,
-        //         exerciseName: exercise.exerciseName
-        //     }))
-        // )
+        const exercisesOnWorkoutToDelete = user.workouts.flatMap((workout)=>
+            workout.exercises.map((exercise) => ({
+                workoutName: workout.name,
+                exerciseName: exercise.exerciseName
+            }))
+        )
 
-        // await prisma.exerciseOnWorkout.deleteMany({
-        //     where: {
-        //         OR: exercisesOnWorkoutToDelete
-        //     }
-        // })
+        await prisma.exerciseOnWorkout.deleteMany({
+            where: {
+                OR: exercisesOnWorkoutToDelete
+            }
+        })
 
-        // const deletedWorkouts = await prisma.workout.deleteMany({
-        //     where: {
-        //         userId: userId
-        //     }
-        // })
+        await prisma.report.deleteMany({
+            where: {
+                userId: user.id
+            }
+        })
+
+        const deletedWorkouts = await prisma.workout.deleteMany({
+            where: {
+                userId: userId
+            }
+        })
 
         const deletedUser = await prisma.user.delete({
             where: {
