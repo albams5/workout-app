@@ -63,9 +63,98 @@ export const createReport = async(req: Request, res:Response) => {
 }
 
 export const updateReport = async(req: Request, res:Response) => {
-    console.log("update report")
+    const {name, workoutName, content } = req.body
+    const reportId = parseInt(req.params.reportId)
+
+    if(!reportId){
+        return res.status(400).send({
+            message: "The field reportId is required"
+        })
+    }
+
+    try{
+        const report = await prisma.report.findUnique({
+            where: {
+                id: reportId
+            },
+            include: {
+                workout: true
+            }
+        })
+
+        if(!report){
+            return res.status(404).send({
+                message: "Report not found"
+            })
+        }
+
+        const updatedReport = await prisma.$transaction(async(prisma) => {
+            const updatedReport = await prisma.report.update({
+                where: {
+                    id: reportId
+                },
+                data: {
+                    name,
+                    workoutName,
+                    content
+                }
+            })
+            return prisma.report.findUnique({
+                where: {
+                    id: report.id
+                },
+                include: {
+                    workout:true
+                }
+            })
+        })
+        res.status(200).send({
+            message: "Report updated successfully",
+            data: updatedReport
+        })
+    }catch(error){
+        res.status(400).send(error)
+    }
 }
 
 export const deleteReport = async(req: Request, res:Response) => {
-    console.log("delete report")
+    const reportId = parseInt(req.params.reportId)
+
+    if(!reportId){
+        return res.status(400).send({
+            message: "The field reportId is required"
+        })
+    }
+    try{
+        const report = await prisma.report.findUnique({
+            where: {
+                id: reportId
+            },
+            include: {
+                workout: true
+            }
+        })
+        if(!report){
+            return res.status(404).send({
+                message: "Report not found"
+            })
+        }
+
+        const deletedReport = await prisma.$transaction(async(prisma) => {
+            const deletedReport = await prisma.report.delete({
+                where: {
+                    id: reportId
+                },
+                include: {
+                    workout:true
+                }
+            })
+        })
+        res.status(200).send({
+            message: "Report deleted successfully"
+        })
+
+    }catch(error){
+        res.status(400).send(error)
+    }
 }
